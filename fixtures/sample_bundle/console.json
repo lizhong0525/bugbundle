@@ -1,0 +1,22 @@
+[
+  {
+    "t": "2026-10-23T09:15:30.018+00:00",
+    "level": "pageerror",
+    "text": "TypeError: Cannot read properties of null (reading 'lastLogin')"
+  },
+  {
+    "t": "2026-10-23T09:15:34.002+00:00",
+    "level": "error",
+    "text": "Payment sync failed for [REDACTED_EMAIL]: retry limit reached"
+  },
+  {
+    "t": "2026-10-23T09:15:41.545+00:00",
+    "level": "error",
+    "text": "Signup backend responded 500: email already taken"
+  },
+  {
+    "t": "2026-10-23T09:15:41.546+00:00",
+    "level": "pageerror",
+    "text": "Error: signup handler not implemented"
+  }
+]

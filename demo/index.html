@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BugBundle demo page</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; }
+  button { display: block; margin: .5rem 0; padding: .5rem 1rem; }
+  #status { background: #f4f4f4; padding: .8rem; min-height: 3rem; white-space: pre-wrap; }
+  #account-panel { border: 1px solid #ccc; padding: .8rem; margin-top: 1rem; }
+</style>
+</head>
+<body>
+<h1>BugBundle demo page</h1>
+<p>Every button below triggers an intentional bug so a capture has something to show.</p>
+
+<button id="btn-throw">Trigger uncaught TypeError</button>
+<button id="btn-console">Log a console.error</button>
+<button id="btn-fetch">Call a failing API (404 + network error)</button>
+
+<form id="signup">
+  <label>Email <input type="email" name="email" placeholder="you@example.com"></label>
+  <label>Password <input type="password" name="password"></label>
+  <button type="submit">Sign up (broken on purpose)</button>
+</form>
+
+<div id="account-panel">
+  Logged in as alice@example.com — session token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGljZSJ9.dummysignaturevalue
+</div>
+
+<div id="status">idle</div>
+
+<script>
+  const status = (msg) => { document.getElementById('status').textContent = msg; };
+
+  document.getElementById('btn-throw').addEventListener('click', () => {
+    const user = null;
+    // Bug 1: uncaught TypeError.
+    status('last login: ' + user.lastLogin.toISOString());
+  });
+
+  document.getElementById('btn-console').addEventListener('click', () => {
+    // Bug 2: console error with a leaky email address.
+    console.error('Payment sync failed for alice@example.com: retry limit reached');
+    status('logged a console.error');
+  });
+
+  document.getElementById('btn-fetch').addEventListener('click', async () => {
+    // Bug 3: 404 plus an unreachable host.
+    try {
+      const r = await fetch('/api/v2/profile?token=sekrit123&debug=1');
+      status('profile status: ' + r.status);
+    } catch (e) { status('profile fetch exploded: ' + e); }
+    fetch('https://unreachable.invalid/telemetry?session=abc123def456').catch(() => {});
+  });
+
+  document.getElementById('signup').addEventListener('submit', (e) => {
+    e.preventDefault();
+    // Bug 4: signup handler crashes after reading the form.
+    console.error('Signup backend responded 500: email already taken');
+    throw new Error('signup handler not implemented');
+  });
+</script>
+</body>
+</html>

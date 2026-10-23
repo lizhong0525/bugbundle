@@ -1,0 +1,24 @@
+[
+  {
+    "t": "2026-10-23T09:15:29.500+00:00",
+    "method": "GET",
+    "url": "http://localhost:8000/demo/index.html?token=[REDACTED]&debug=1",
+    "status": 200,
+    "failed": false
+  },
+  {
+    "t": "2026-10-23T09:15:34.120+00:00",
+    "method": "GET",
+    "url": "http://localhost:8000/api/v2/profile?token=[REDACTED]&debug=1",
+    "status": 404,
+    "failed": false
+  },
+  {
+    "t": "2026-10-23T09:15:34.450+00:00",
+    "method": "GET",
+    "url": "https://unreachable.invalid/telemetry?session=[REDACTED]",
+    "status": null,
+    "failed": true,
+    "error": "net::ERR_NAME_NOT_RESOLVED"
+  }
+]

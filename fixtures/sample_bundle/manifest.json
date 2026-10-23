@@ -1,0 +1,16 @@
+{
+  "format": "bugbundle/1",
+  "created_at": "2026-10-23T09:15:42.120+00:00",
+  "url": "http://localhost:8000/demo/index.html?token=[REDACTED]&debug=1",
+  "viewport": {"width": 1280, "height": 800},
+  "user_agent": "BugBundle/0.1 (+capture)",
+  "capture_indicator": true,
+  "passwords_recorded": false,
+  "hidden_inputs_recorded": false,
+  "redaction": {
+    "sensitive_params": ["token", "session", "email"],
+    "dom_selectors": ["#account-panel"],
+    "emails": true,
+    "tokens": true
+  }
+}

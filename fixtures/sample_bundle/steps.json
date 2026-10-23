@@ -1,0 +1,28 @@
+[
+  {
+    "t": "2026-10-23T09:15:30.004+00:00",
+    "action": "click",
+    "target": "button#btn-throw",
+    "note": "",
+    "screenshot": "shot-001.png"
+  },
+  {
+    "t": "2026-10-23T09:15:33.411+00:00",
+    "action": "click",
+    "target": "button#btn-fetch",
+    "note": "",
+    "screenshot": "shot-002.png"
+  },
+  {
+    "t": "2026-10-23T09:15:38.902+00:00",
+    "action": "input",
+    "target": "input[name=email]",
+    "note": "typed into email field (value not recorded)"
+  },
+  {
+    "t": "2026-10-23T09:15:41.530+00:00",
+    "action": "submit",
+    "target": "form#signup",
+    "note": "password field value never recorded"
+  }
+]
