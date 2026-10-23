@@ -84,11 +84,17 @@ def render_html(bundle: Bundle) -> str:
     )
 
     flags = []
-    if not m.get("passwords_recorded", False):
-        flags.append("passwords not recorded")
-    if not m.get("hidden_inputs_recorded", False):
-        flags.append("hidden inputs not recorded")
-    privacy = ", ".join(flags) if flags else "review flags manually"
+    for key, label in (
+        ("passwords_recorded", "passwords"),
+        ("hidden_inputs_recorded", "hidden inputs"),
+    ):
+        if key not in m:
+            flags.append(f"{label}: unknown (not declared in manifest)")
+        elif m.get(key):
+            flags.append(f"WARNING: {label} WERE recorded - review carefully")
+        else:
+            flags.append(f"{label} not recorded")
+    privacy = ", ".join(flags)
 
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">

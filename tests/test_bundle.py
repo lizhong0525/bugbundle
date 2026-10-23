@@ -168,6 +168,18 @@ class TestValidationFailures(unittest.TestCase):
         warnings = validate_bundle(root)
         self.assertTrue(any("gone.png" in w for w in warnings))
 
+    def test_missing_privacy_flags_warns(self):
+        root = write_bundle(
+            self.tmp / "b",
+            {"format": "bugbundle/1", "url": "http://x", "viewport": {}},
+            [],
+            [],
+            [],
+        )
+        warnings = validate_bundle(root)
+        self.assertTrue(any("passwords_recorded" in w for w in warnings))
+        self.assertTrue(any("hidden_inputs_recorded" in w for w in warnings))
+
 
 if __name__ == "__main__":
     unittest.main()

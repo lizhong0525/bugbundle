@@ -129,6 +129,11 @@ def validate_bundle(root: Path) -> list[str]:
         warnings.append("manifest.json has no 'url' field")
     if "viewport" not in manifest:
         warnings.append("manifest.json has no 'viewport' field")
+    for flag in ("passwords_recorded", "hidden_inputs_recorded"):
+        if flag not in manifest:
+            warnings.append(
+                f"manifest.json has no {flag!r} flag; capture-time privacy behavior unknown"
+            )
     shots = root / "screenshots"
     if shots.is_dir():
         for step in _read_json(root / "steps.json", list):

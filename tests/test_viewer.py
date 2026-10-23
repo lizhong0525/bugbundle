@@ -42,6 +42,33 @@ class TestViewer(unittest.TestCase):
         with self.assertRaises(BundleError):
             render_to_file(root, tmp / "out.html")
 
+    def test_privacy_line_warns_when_passwords_recorded(self):
+        tmp = Path(tempfile.mkdtemp(prefix="bugbundle-test-"))
+        root = write_bundle(
+            tmp / "b",
+            {"format": "bugbundle/1", "url": "http://x", "viewport": {},
+             "passwords_recorded": True, "hidden_inputs_recorded": False},
+            [{"t": "t", "action": "click", "target": "a"}],
+            [],
+            [],
+        )
+        html = render_html(load_bundle(root))
+        self.assertIn("WARNING: passwords WERE recorded", html)
+        self.assertIn("hidden inputs not recorded", html)
+
+    def test_privacy_line_marks_undeclared_flags_unknown(self):
+        tmp = Path(tempfile.mkdtemp(prefix="bugbundle-test-"))
+        root = write_bundle(
+            tmp / "b",
+            {"format": "bugbundle/1", "url": "http://x", "viewport": {}},
+            [{"t": "t", "action": "click", "target": "a"}],
+            [],
+            [],
+        )
+        html = render_html(load_bundle(root))
+        self.assertIn("passwords: unknown", html)
+        self.assertNotIn("passwords not recorded", html)
+
     def test_render_to_file_writes_html(self):
         tmp = Path(tempfile.mkdtemp(prefix="bugbundle-test-"))
         out = render_to_file(FIXTURE, tmp / "report.html")
