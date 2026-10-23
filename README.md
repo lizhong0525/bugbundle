@@ -4,6 +4,8 @@ Portable, redacted browser bug-report bundles for local development and QA — c
 
 ## Quickstart
 
+Requires Python 3.10+; the core is standard-library only, so there is nothing to install. Run the commands from the repository root (or add it to `PYTHONPATH`):
+
 ```bash
 python -m bugbundle demo
 ```
@@ -18,13 +20,15 @@ That's it — no browser, no Playwright, no dependencies. It loads the included 
 3. Try the round trip:
    ```bash
    python -m bugbundle export fixtures/sample_bundle --out share.zip   # asks you to type 'share'
-   python -m bugbundle import share.bugbundle.zip --out /tmp/imported  # unpacks + validates
-   python -m bugbundle view /tmp/imported                              # renders the same report
+   python -m bugbundle import share.bugbundle.zip --out imported       # unpacks + validates
+   python -m bugbundle view imported                                   # renders the same report
    ```
+   (export normalizes the name: `share.zip` becomes `share.bugbundle.zip`)
 4. Optional live capture (requires `pip install playwright && playwright install chromium`):
    ```bash
    python -m bugbundle capture "file://$PWD/demo/index.html" --out captures/run1
    ```
+   On Windows, pass an absolute file URL instead, e.g. `file:///F:/path/to/bugbundle/demo/index.html`.
    `demo/index.html` has four intentional bugs (uncaught TypeError, console.error with a leaky email, a 404 + unreachable fetch, a crashing form submit). While recording, a red banner is pinned to the top of the page so the capture is always visible.
 
 ## Features

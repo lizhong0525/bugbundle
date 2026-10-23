@@ -70,11 +70,13 @@ def cmd_capture(args: argparse.Namespace) -> int:
             rules=_rules_from_args(args),
             headless=args.headless,
         )
-    except RuntimeError as exc:
+    except (RuntimeError, BundleError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
-    except BundleError as exc:
-        print(f"error: {exc}", file=sys.stderr)
+    except Exception as exc:
+        # e.g. playwright's browser binary missing or the page failing to
+        # load: report a single actionable line instead of a traceback.
+        print(f"error: capture failed: {exc}", file=sys.stderr)
         return 1
     print(f"Bundle written to: {root}")
     print("Next: inspect it with `python -m bugbundle view <dir>` before sharing.")

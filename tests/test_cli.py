@@ -48,6 +48,15 @@ class TestCli(unittest.TestCase):
         self.assertEqual(rc, 1)
         self.assertFalse((self.tmp / "cap").exists())
 
+    def test_capture_unexpected_failure_is_clean_error(self):
+        # e.g. playwright installed but browser binary missing: the CLI must
+        # exit 1 with an error line, not crash with a traceback.
+        from unittest import mock
+
+        with mock.patch("bugbundle.capture.capture", side_effect=ValueError("boom")):
+            rc = main(["capture", "http://localhost", "--out", str(self.tmp / "cap")])
+        self.assertEqual(rc, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
