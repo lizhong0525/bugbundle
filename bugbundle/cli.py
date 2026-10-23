@@ -46,7 +46,11 @@ def cmd_demo(args: argparse.Namespace) -> int:
     for w in warnings:
         print(f"warning: {w}", file=sys.stderr)
     out_html = Path(args.out or work / "report.html")
-    render_to_file(bundle_dir, out_html)
+    try:
+        render_to_file(bundle_dir, out_html)
+    except (BundleError, OSError) as exc:
+        print(f"error: cannot write report: {exc}", file=sys.stderr)
+        return 1
     bundle = load_bundle(bundle_dir)
     failed = [r for r in bundle.network if r.get("failed") or (r.get("status") or 0) >= 400]
     errors = [e for e in bundle.console if e.get("level") in ("error", "pageerror")]
@@ -90,6 +94,9 @@ def cmd_view(args: argparse.Namespace) -> int:
     except BundleError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
+    except OSError as exc:
+        print(f"error: cannot write {out}: {exc}", file=sys.stderr)
+        return 1
     print(f"HTML report written to: {out}")
     return 0
 
@@ -109,7 +116,12 @@ def cmd_export(args: argparse.Namespace) -> int:
               f"{'yes' if bundle.dom_snapshot else 'no'}")
         print("Redaction has been applied, but YOU are responsible for reviewing")
         print("every artifact first (`python -m bugbundle view <dir>`).")
-        answer = input("Type 'share' to confirm export: ").strip().lower()
+        try:
+            answer = input("Type 'share' to confirm export: ").strip().lower()
+        except EOFError:
+            print("error: could not read confirmation (stdin closed); "
+                  "use --yes for scripted exports", file=sys.stderr)
+            return 2
         if answer != "share":
             print("Export cancelled.")
             return 2
@@ -117,6 +129,9 @@ def cmd_export(args: argparse.Namespace) -> int:
         out_zip = export_bundle(bundle_dir, Path(args.out), confirm=True)
     except BundleError as exc:
         print(f"error: {exc}", file=sys.stderr)
+        return 1
+    except OSError as exc:
+        print(f"error: cannot write {args.out}: {exc}", file=sys.stderr)
         return 1
     print(f"Bundle exported to: {out_zip}")
     return 0

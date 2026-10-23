@@ -88,6 +88,17 @@ class TestExportImportRoundTrip(unittest.TestCase):
         with self.assertRaises(BundleError):
             import_bundle(evil, self.tmp / "evil-out")
 
+    def test_import_rejects_sibling_prefix_traversal(self):
+        # "evil-out-evil" shares the string prefix of dest "evil-out"; a
+        # startswith() guard would wrongly let this entry through.
+        evil = self.tmp / "evil2.zip"
+        with zipfile.ZipFile(evil, "w") as zf:
+            zf.writestr("manifest.json", json.dumps({"format": "bugbundle/1"}))
+            zf.writestr("../evil-out-evil/pwned.txt", "pwned")
+        with self.assertRaises(BundleError) as ctx:
+            import_bundle(evil, self.tmp / "evil-out")
+        self.assertIn("Unsafe path", str(ctx.exception))
+
     def test_import_rejects_non_zip(self):
         junk = self.tmp / "junk.zip"
         junk.write_bytes(b"this is not a zip")
@@ -133,6 +144,13 @@ class TestValidationFailures(unittest.TestCase):
         (self.tmp / "manifest.json").write_text('["not", "an", "object"]')
         with self.assertRaises(BundleError):
             validate_bundle(self.tmp)
+
+    def test_non_object_entries_rejected(self):
+        root = write_bundle(self.tmp / "b", {"format": "bugbundle/1"}, [], [], [])
+        (root / "steps.json").write_text(json.dumps(["just a string", 42]))
+        with self.assertRaises(BundleError) as ctx:
+            validate_bundle(root)
+        self.assertIn("entry #1", str(ctx.exception))
 
     def test_write_refuses_existing_dir(self):
         write_bundle(self.tmp / "b", {}, [], [], [])

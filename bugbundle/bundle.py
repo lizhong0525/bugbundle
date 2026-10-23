@@ -120,7 +120,10 @@ def validate_bundle(root: Path) -> list[str]:
     if fmt != BUNDLE_FORMAT:
         raise BundleError(f"Unsupported bundle format: {fmt!r} (expected {BUNDLE_FORMAT!r})")
     for name in ("steps.json", "console.json", "network.json"):
-        _read_json(root / name, list)
+        entries = _read_json(root / name, list)
+        for i, entry in enumerate(entries, 1):
+            if not isinstance(entry, dict):
+                raise BundleError(f"{name} entry #{i} must be a JSON object, got {type(entry).__name__}")
     warnings: list[str] = []
     if "url" not in manifest:
         warnings.append("manifest.json has no 'url' field")
@@ -191,8 +194,10 @@ def import_bundle(zip_path: Path, dest_dir: Path) -> Path:
         with zipfile.ZipFile(zip_path) as zf:
             for info in zf.infolist():
                 target = (dest_resolved / info.filename).resolve()
-                if not str(target).startswith(str(dest_resolved)):
-                    raise BundleError(f"Unsafe path in archive: {info.filename!r}")
+                try:
+                    target.relative_to(dest_resolved)
+                except ValueError:
+                    raise BundleError(f"Unsafe path in archive: {info.filename!r}") from None
             zf.extractall(dest_resolved)
     except zipfile.BadZipFile as exc:
         raise BundleError(f"Not a valid zip archive: {zip_path}") from exc

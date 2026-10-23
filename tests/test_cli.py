@@ -57,6 +57,25 @@ class TestCli(unittest.TestCase):
             rc = main(["capture", "http://localhost", "--out", str(self.tmp / "cap")])
         self.assertEqual(rc, 1)
 
+    def test_export_eof_on_confirmation_fails_cleanly(self):
+        # Piped/closed stdin must not crash with an EOFError traceback.
+        from unittest import mock
+
+        with mock.patch("builtins.input", side_effect=EOFError):
+            rc = main(["export", str(FIXTURE), "--out", str(self.tmp / "s.zip")])
+        self.assertEqual(rc, 2)
+        self.assertFalse((self.tmp / "s.bugbundle.zip").exists())
+
+    def test_export_to_missing_parent_dir_fails_cleanly(self):
+        rc = main(["export", str(FIXTURE), "--yes",
+                   "--out", str(self.tmp / "no-such-dir" / "s.zip")])
+        self.assertEqual(rc, 1)
+
+    def test_view_to_missing_parent_dir_fails_cleanly(self):
+        rc = main(["view", str(FIXTURE),
+                   "--out", str(self.tmp / "no-such-dir" / "v.html")])
+        self.assertEqual(rc, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
